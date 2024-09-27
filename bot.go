@@ -16,14 +16,6 @@ import (
 // Marzban URL (constant)
 const Marzban_URL = "http://localhost:8000"
 
-// User model for database
-type User struct {
-	gorm.Model
-	ChatID   int64 `gorm:"uniqueIndex"`
-	Username string
-	Password string
-}
-
 // State management
 type UserState struct {
 	mu     sync.Mutex
@@ -104,7 +96,7 @@ func main() {
 	}
 
 	// Migrate the schema
-	db.AutoMigrate(&User{})
+	db.AutoMigrate(&models.User{})
 
 	userState = NewUserState()
 
@@ -193,7 +185,7 @@ func handlePasswordInput(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 	password := message.Text
 	if isValidPassword(password) {
 		user, err := models.ReadUser(db, message.Chat.ID)
-		models.ModifyUser(db,message.Chat.ID,user.Username,message.Text)
+		models.ModifyUser(db,message.Chat.ID,user.Username,message.Text,user.Token)
 		if err != nil {
 			log.Panic("NO user")
 		}
@@ -213,6 +205,11 @@ func handlePasswordInput(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 			// Successfully got access token
 			userState.ResetState(message.Chat.ID)
 			msg := tgbotapi.NewMessage(message.Chat.ID, "Access token obtained successfully: "+accessToken)
+			user , e := models.ReadUser(db,message.Chat.ID)
+			if e != nil {
+				log.Panic("No User")
+			}
+			models.ModifyUser(db,message.Chat.ID,user.Username,user.Password,accessToken)
 			bot.Send(msg)
 		}
 	} else {

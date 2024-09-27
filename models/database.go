@@ -41,7 +41,7 @@ func ReadUser(db *gorm.DB, chatID int64) (*User, error) {
 	}
 	return &user, nil // Return the user if found
 }
-func ModifyUser(db *gorm.DB, chatID int64, username, password string) error {
+func ModifyUser(db *gorm.DB, chatID int64, username, password string,token string) error {
 	var user User
 	if err := db.Where("chat_id = ?", chatID).First(&user).Error; err != nil {
 		return err // Return the error if the user does not exist
@@ -50,5 +50,6 @@ func ModifyUser(db *gorm.DB, chatID int64, username, password string) error {
 	// Update user fields
 	user.Username = username
 	user.Password = password
+	user.Token = token
 	return db.Save(&user).Error // Save the modified user
 }
