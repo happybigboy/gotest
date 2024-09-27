@@ -5,16 +5,15 @@ import (
 	"main/handlers"
 	"main/models"
 	"main/states"
-	"os"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 func main() {
 	models.Main()
-	states.NewUserState()
-
-	bot, err := tgbotapi.NewBotAPI(os.Getenv("Telegram_Bot_Token"))
+	userState := states.NewUserState()
+	
+	bot, err := tgbotapi.NewBotAPI("7362762333:AAF0KMRRjtvea7KDeyzuiscbA-9_Z7i4IQo")
 	if err != nil {
 		log.Panic(err)
 	}
@@ -30,7 +29,7 @@ func main() {
 
 	for update := range updates {
 		if update.Message != nil {
-			handlers.HandleMessage(bot, update.Message)
+			handlers.HandleMessage(bot, update.Message,userState)
 		}
 	}
 }
