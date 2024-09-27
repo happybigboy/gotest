@@ -5,71 +5,48 @@ import (
 	"gorm.io/gorm"
 )
 
-// StateModel represents the 'states' table
-type StateModel struct {
-	UserID int    `gorm:"primaryKey"`
-	ChatID int    `gorm:"primaryKey"`
-	State  string `gorm:"type:varchar(255)"`
+type User struct {
+	gorm.Model
+	ChatID   int64  `gorm:"uniqueIndex"`
+	Username string `gorm:"not null"` // Ensure username is not null
+	Password string `gorm:"not null"` // Ensure password is not null
 }
 
-// DataModel represents the 'data' table
-type DataModel struct {
-	UserID int         `gorm:"primaryKey"`
-	ChatID int         `gorm:"primaryKey"`
-	Data   interface{} `gorm:"type:json"`
-}
+// Function to create or update a user
+func CreateUser(db *gorm.DB, chatID int64, username, password string) error {
+	user := User{
+		ChatID:   chatID,
+		Username: username,
+		Password: password,
+	}
 
-// MessageModel represents the 'messages' table
-type MessageModel struct {
-	ID        int `gorm:"primaryKey;autoIncrement"`
-	ChatID    int `gorm:"index"`
-	MessageID int `gorm:"index"`
-}
+	// Check if the user already exists
+	var existingUser User
+	if err := db.Where("chat_id = ?", chatID).First(&existingUser).Error; err == nil {
+		// User exists, update the existing record
+		existingUser.Username = username
+		existingUser.Password = password
+		return db.Save(&existingUser).Error
+	}
 
-// MigrateModels migrates the tables in the provided DB
-func MigrateModels(db *gorm.DB) error {
-	// AutoMigrate the models
-	return db.AutoMigrate(&StateModel{}, &DataModel{}, &MessageModel{})
+	// User does not exist, create a new record
+	return db.Create(&user).Error
 }
-
-// Custom exceptions
-type CustomException struct {
-	Message string
+func ReadUser(db *gorm.DB, chatID int64) (*User, error) {
+	var user User
+	if err := db.Where("chat_id = ?", chatID).First(&user).Error; err != nil {
+		return nil, err // Return nil and the error if the user does not exist
+	}
+	return &user, nil // Return the user if found
 }
+func ModifyUser(db *gorm.DB, chatID int64, username, password string) error {
+	var user User
+	if err := db.Where("chat_id = ?", chatID).First(&user).Error; err != nil {
+		return err // Return the error if the user does not exist
+	}
 
-func (e *CustomException) Error() string {
-	return e.Message
-}
-
-type AuthenticationError struct {
-	CustomException
-}
-
-type UserNotFoundError struct {
-	CustomException
-}
-
-type APIError struct {
-	CustomException
-}
-
-type NetworkError struct {
-	CustomException
-}
-
-// Custom exception helpers
-func NewAuthenticationError() error {
-	return &AuthenticationError{CustomException{Message: "Authentication failed"}}
-}
-
-func NewUserNotFoundError() error {
-	return &UserNotFoundError{CustomException{Message: "User not found"}}
-}
-
-func NewAPIError() error {
-	return &APIError{CustomException{Message: "API error occurred"}}
-}
-
-func NewNetworkError() error {
-	return &NetworkError{CustomException{Message: "Network error occurred"}}
+	// Update user fields
+	user.Username = username
+	user.Password = password
+	return db.Save(&user).Error // Save the modified user
 }

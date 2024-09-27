@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"net/url"
+	// "net/url"
 )
 
 // Custom error types
@@ -42,83 +42,75 @@ func (e *UserNotFoundError) Error() string {
 	return e.Message
 }
 
-// Utility function to generate headers
-func getHeaders(token string, contentType string) http.Header {
-	headers := http.Header{}
-	headers.Set("Authorization", "Bearer "+token)
-	if contentType != "" {
-		headers.Set("Content-Type", contentType)
-	}
-	return headers
-}
 
-// GetAccessToken retrieves the access token using the provided credentials.
-func GetAccessToken(username, password, apiUrl string) (string, error) {
-	loginURL := fmt.Sprintf("%s/api/admin/token/", apiUrl)
 
-	// Prepare the data in application/x-www-form-urlencoded format
-	data := url.Values{}
-	data.Set("username", username)
-	data.Set("password", password)
+// // GetAccessToken retrieves the access token using the provided credentials.
+// func GetAccessToken(username, password, apiUrl string) (string, error) {
+// 	loginURL := fmt.Sprintf("%s/api/admin/token/", apiUrl)
 
-	resp, err := http.PostForm(loginURL, data)
-	if err != nil {
-		return "", &NetworkError{Message: fmt.Sprintf("Network error occurred: %s", err)}
-	}
-	defer resp.Body.Close()
+// 	// Prepare the data in application/x-www-form-urlencoded format
+// 	data := url.Values{}
+// 	data.Set("username", username)
+// 	data.Set("password", password)
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", fmt.Errorf("failed to read response body: %w", err)
-	}
+// 	resp, err := http.PostForm(loginURL, data)
+// 	if err != nil {
+// 		return "", &NetworkError{Message: fmt.Sprintf("Network error occurred: %s", err)}
+// 	}
+// 	defer resp.Body.Close()
 
-	if resp.StatusCode == http.StatusOK {
-		var result map[string]interface{}
-		if err := json.Unmarshal(body, &result); err != nil {
-			return "", fmt.Errorf("failed to unmarshal JSON: %w", err)
-		}
+// 	body, err := ioutil.ReadAll(resp.Body)
+// 	if err != nil {
+// 		return "", fmt.Errorf("failed to read response body: %w", err)
+// 	}
 
-		accessToken, ok := result["access_token"].(string)
-		if !ok {
-			return "", fmt.Errorf("access token not found or invalid type")
-		}
-		return accessToken, nil
-	} else if resp.StatusCode == http.StatusUnauthorized {
-		return "", &AuthError{Message: "Invalid username or password"}
-	}
+// 	if resp.StatusCode == http.StatusOK {
+// 		var result map[string]interface{}
+// 		if err := json.Unmarshal(body, &result); err != nil {
+// 			return "", fmt.Errorf("failed to unmarshal JSON: %w", err)
+// 		}
 
-	return "", &APIError{Message: fmt.Sprintf("Could not obtain token: %s", body)}
-}
+// 		accessToken, ok := result["access_token"].(string)
+// 		if !ok {
+// 			return "", fmt.Errorf("access token not found or invalid type")
+// 		}
+// 		return accessToken, nil
+// 	} else if resp.StatusCode == http.StatusUnauthorized {
+// 		return "", &AuthError{Message: "Invalid username or password"}
+// 	}
 
-// GetUserInfo retrieves user information for the specified username.
-func getUserInfo(token, url, username string) (map[string]interface{}, error) {
-	userInfoURL := fmt.Sprintf("%s/api/user/%s", url, username)
-	headers := getHeaders(token, "")
+// 	return "", &APIError{Message: fmt.Sprintf("Could not obtain token: %s", body)}
+// }
 
-	req, err := http.NewRequest("GET", userInfoURL, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header = headers
+// // GetUserInfo retrieves user information for the specified username.
+// func getUserInfo(token, url, username string) (map[string]interface{}, error) {
+// 	userInfoURL := fmt.Sprintf("%s/api/user/%s", url, username)
+// 	headers := getHeaders(token, "")
 
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, &NetworkError{Message: fmt.Sprintf("Network error occurred: %s", err)}
-	}
-	defer resp.Body.Close()
+// 	req, err := http.NewRequest("GET", userInfoURL, nil)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	req.Header = headers
 
-	body, _ := ioutil.ReadAll(resp.Body)
-	if resp.StatusCode == 200 {
-		var userInfo map[string]interface{}
-		if err := json.Unmarshal(body, &userInfo); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal JSON: %w", err)
-		}
-		return userInfo, nil
-	} else if resp.StatusCode == 404 {
-		return nil, &UserNotFoundError{Message: fmt.Sprintf("User '%s' not found", username)}
-	}
-	return nil, &APIError{Message: fmt.Sprintf("Could not obtain user info for %s: %s", username, body)}
-}
+// 	resp, err := http.DefaultClient.Do(req)
+// 	if err != nil {
+// 		return nil, &NetworkError{Message: fmt.Sprintf("Network error occurred: %s", err)}
+// 	}
+// 	defer resp.Body.Close()
+
+// 	body, _ := ioutil.ReadAll(resp.Body)
+// 	if resp.StatusCode == 200 {
+// 		var userInfo map[string]interface{}
+// 		if err := json.Unmarshal(body, &userInfo); err != nil {
+// 			return nil, fmt.Errorf("failed to unmarshal JSON: %w", err)
+// 		}
+// 		return userInfo, nil
+// 	} else if resp.StatusCode == 404 {
+// 		return nil, &UserNotFoundError{Message: fmt.Sprintf("User '%s' not found", username)}
+// 	}
+// 	return nil, &APIError{Message: fmt.Sprintf("Could not obtain user info for %s: %s", username, body)}
+// }
 
 // ResetUsage resets the usage for the specified user.
 func resetUsage(token, url, username string) (bool, error) {
