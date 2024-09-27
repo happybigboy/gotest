@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 )
 
 // Utility function to generate headers
@@ -16,17 +17,27 @@ func getHeaders(token string, contentType string) http.Header {
 		headers.Set("Content-Type", contentType)
 	}
 	return headers
-} 
+}
 
 func GetAccessToken(baseURL, username, password string) (string, error) {
 	// Construct the full URL
-	url := fmt.Sprintf("%s/api/admin/token", baseURL)
+	reqURL := fmt.Sprintf("%s/api/admin/token", baseURL)
+	fmt.Println("Request URL:", reqURL) // Debugging statement
 
+	// Print out the username and password to verify they are set
+	fmt.Println("Username:", username)
+	fmt.Println("Password:", password)
 	// Prepare the data as application/x-www-form-urlencoded
-	payload := []byte("grant_type=&username=" + username + "&password=" + password + "&scope=&client_id=&client_secret=")
+	form := url.Values{}
+	form.Set("grant_type", "")
+	form.Set("username", username)
+	form.Set("password", password)
+	form.Set("scope", "")
+	form.Set("client_id", "")
+	form.Set("client_secret", "")
 
 	// Create a new POST request
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payload))
+	req, err := http.NewRequest("POST", reqURL, bytes.NewBufferString(form.Encode()))
 	if err != nil {
 		return "", fmt.Errorf("failed to create request: %w", err)
 	}

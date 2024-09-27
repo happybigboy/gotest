@@ -14,7 +14,7 @@ import (
 )
 
 // Marzban URL (constant)
-const Marzban_URL = "https://de.speedur.site:2053"
+const Marzban_URL = "http://localhost:8000"
 
 // User model for database
 type User struct {
@@ -134,8 +134,7 @@ func handleMessage(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 		switch message.Command() {
 		case "start":
 			handleStart(bot, message)
-		case "delete":
-			handleDelete(bot, message)
+
 		case "help":
 			handleHelp(bot, message)
 		default:
@@ -152,17 +151,9 @@ func handleStart(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 	bot.Send(msg)
 }
 
-func handleDelete(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
-	db.Where("chat_id = ?", message.Chat.ID).Delete(&User{})
-	userState.ResetState(message.Chat.ID)
-	msg := tgbotapi.NewMessage(message.Chat.ID, "Your data has been deleted. Use /start to begin again.")
-	bot.Send(msg)
-}
-
 func handleHelp(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 	helpText := `Available commands:
 /start - Begin setup or reset your username
-/delete - Delete your account data
 /help - Show this help message`
 	msg := tgbotapi.NewMessage(message.Chat.ID, helpText)
 	bot.Send(msg)
@@ -187,7 +178,7 @@ func handleUsernameInput(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 	// Validate username
 	if isValidUsername(username) {
 		userState.SetState(message.Chat.ID, "awaiting_password") // Update state to await password
-		models.CreateUser(db, message.Chat.ID, message.Text, "")
+		models.CreateUser(db, message.Chat.ID, message.Text, "","")
 		msg := tgbotapi.NewMessage(message.Chat.ID, "Username valid. Please enter a password:")
 		bot.Send(msg)
 
@@ -202,11 +193,12 @@ func handlePasswordInput(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 	password := message.Text
 	if isValidPassword(password) {
 		user, err := models.ReadUser(db, message.Chat.ID)
+		models.ModifyUser(db,message.Chat.ID,user.Username,message.Text)
 		if err != nil {
 			log.Panic("NO user")
 		}
 		// Try to get the access token with the constant URL
-		accessToken, err := utils.GetAccessToken(Marzban_URL,user.Username, password)
+		accessToken, err := utils.GetAccessToken(Marzban_URL,user.Username, message.Text)
 		if err != nil {
 			switch err.(type) {
 			case *AuthError:
@@ -236,5 +228,5 @@ func isValidUsername(username string) bool {
 
 func isValidPassword(password string) bool {
 	// Add password validation logic here, e.g., minimum length
-	return len(password) >= 6
+	return len(password) >= 1
 }

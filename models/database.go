@@ -10,14 +10,16 @@ type User struct {
 	ChatID   int64  `gorm:"uniqueIndex"`
 	Username string `gorm:"not null"` // Ensure username is not null
 	Password string `gorm:"not null"` // Ensure password is not null
+	Token 	 string `gorm:"not null"`
 }
 
 // Function to create or update a user
-func CreateUser(db *gorm.DB, chatID int64, username, password string) error {
+func CreateUser(db *gorm.DB, chatID int64, username, password string,token string) error {
 	user := User{
 		ChatID:   chatID,
 		Username: username,
 		Password: password,
+		Token: token,
 	}
 
 	// Check if the user already exists
