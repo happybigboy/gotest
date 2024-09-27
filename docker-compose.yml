@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  go-app:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "8090:8090"

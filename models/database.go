@@ -2,7 +2,14 @@
 package models
 
 import (
+	"log"
+
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+)
+
+var (
+	db *gorm.DB
 )
 
 type User struct {
@@ -10,16 +17,28 @@ type User struct {
 	ChatID   int64  `gorm:"uniqueIndex"`
 	Username string `gorm:"not null"` // Ensure username is not null
 	Password string `gorm:"not null"` // Ensure password is not null
-	Token 	 string `gorm:"not null"`
+	Token    string `gorm:"not null"`
+}
+
+func Main() {
+	var err error
+	db, err = gorm.Open(sqlite.Open("user_data.db"), &gorm.Config{})
+	if err != nil {
+		log.Panic(err)
+	}
+
+	// Migrate the schema
+	db.AutoMigrate(&User{})
+
 }
 
 // Function to create or update a user
-func CreateUser(db *gorm.DB, chatID int64, username, password string,token string) error {
+func CreateUser(chatID int64, username, password string, token string) error {
 	user := User{
 		ChatID:   chatID,
 		Username: username,
 		Password: password,
-		Token: token,
+		Token:    token,
 	}
 
 	// Check if the user already exists
@@ -34,14 +53,14 @@ func CreateUser(db *gorm.DB, chatID int64, username, password string,token strin
 	// User does not exist, create a new record
 	return db.Create(&user).Error
 }
-func ReadUser(db *gorm.DB, chatID int64) (*User, error) {
+func ReadUser(chatID int64) (*User, error) {
 	var user User
 	if err := db.Where("chat_id = ?", chatID).First(&user).Error; err != nil {
 		return nil, err // Return nil and the error if the user does not exist
 	}
 	return &user, nil // Return the user if found
 }
-func ModifyUser(db *gorm.DB, chatID int64, username, password string,token string) error {
+func ModifyUser(chatID int64, username, password string, token string) error {
 	var user User
 	if err := db.Where("chat_id = ?", chatID).First(&user).Error; err != nil {
 		return err // Return the error if the user does not exist
