@@ -1,11 +1,11 @@
 package utils
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"net/http"
+	// "bytes"
+	// "encoding/json"
+	// "fmt"
+	// "io/ioutil"
+	// "net/http"
 	// "net/url"
 )
 
@@ -113,261 +113,261 @@ func (e *UserNotFoundError) Error() string {
 // }
 
 // ResetUsage resets the usage for the specified user.
-func resetUsage(token, url, username string) (bool, error) {
-	resetURL := fmt.Sprintf("%s/api/user/%s/reset", url, username)
-	headers := getHeaders(token, "")
+// func resetUsage(token, url, username string) (bool, error) {
+// 	resetURL := fmt.Sprintf("%s/api/user/%s/reset", url, username)
+// 	headers := getHeaders(token, "")
 
-	req, err := http.NewRequest("POST", resetURL, nil)
-	if err != nil {
-		return false, err
-	}
-	req.Header = headers
+// 	req, err := http.NewRequest("POST", resetURL, nil)
+// 	if err != nil {
+// 		return false, err
+// 	}
+// 	req.Header = headers
 
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return false, &NetworkError{Message: fmt.Sprintf("Network error occurred: %s", err)}
-	}
-	defer resp.Body.Close()
+// 	resp, err := http.DefaultClient.Do(req)
+// 	if err != nil {
+// 		return false, &NetworkError{Message: fmt.Sprintf("Network error occurred: %s", err)}
+// 	}
+// 	defer resp.Body.Close()
 
-	body, _ := ioutil.ReadAll(resp.Body)
-	if resp.StatusCode == 200 {
-		return true, nil
-	}
-	return false, fmt.Errorf("Could not reset usage for %s: %s", username, body)
-}
+// 	body, _ := ioutil.ReadAll(resp.Body)
+// 	if resp.StatusCode == 200 {
+// 		return true, nil
+// 	}
+// 	return false, fmt.Errorf("Could not reset usage for %s: %s", username, body)
+// }
 
-// RevokeSubscription revokes the subscription for the specified user.
-func revokeSubscription(token, url, username string) (bool, error) {
-	revokeURL := fmt.Sprintf("%s/api/user/%s/revoke_sub", url, username)
-	headers := getHeaders(token, "application/json")
+// // RevokeSubscription revokes the subscription for the specified user.
+// func revokeSubscription(token, url, username string) (bool, error) {
+// 	revokeURL := fmt.Sprintf("%s/api/user/%s/revoke_sub", url, username)
+// 	headers := getHeaders(token, "application/json")
 
-	data := map[string]interface{}{}
-	jsonData, _ := json.Marshal(data)
+// 	data := map[string]interface{}{}
+// 	jsonData, _ := json.Marshal(data)
 
-	req, err := http.NewRequest("POST", revokeURL, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return false, err
-	}
-	req.Header = headers
+// 	req, err := http.NewRequest("POST", revokeURL, bytes.NewBuffer(jsonData))
+// 	if err != nil {
+// 		return false, err
+// 	}
+// 	req.Header = headers
 
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return false, &NetworkError{Message: fmt.Sprintf("Network error occurred: %s", err)}
-	}
-	defer resp.Body.Close()
+// 	resp, err := http.DefaultClient.Do(req)
+// 	if err != nil {
+// 		return false, &NetworkError{Message: fmt.Sprintf("Network error occurred: %s", err)}
+// 	}
+// 	defer resp.Body.Close()
 
-	body, _ := ioutil.ReadAll(resp.Body)
-	if resp.StatusCode == 200 {
-		return true, nil
-	}
-	return false, fmt.Errorf("Could not revoke subscription for %s: %s", username, body)
-}
+// 	body, _ := ioutil.ReadAll(resp.Body)
+// 	if resp.StatusCode == 200 {
+// 		return true, nil
+// 	}
+// 	return false, fmt.Errorf("Could not revoke subscription for %s: %s", username, body)
+// }
 
-// GetInbounds retrieves inbound information.
-func getInbounds(token, url string) (map[string]interface{}, error) {
-	inboundsURL := fmt.Sprintf("%s/api/inbounds", url)
-	headers := getHeaders(token, "")
+// // GetInbounds retrieves inbound information.
+// func getInbounds(token, url string) (map[string]interface{}, error) {
+// 	inboundsURL := fmt.Sprintf("%s/api/inbounds", url)
+// 	headers := getHeaders(token, "")
 
-	req, err := http.NewRequest("GET", inboundsURL, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header = headers
+// 	req, err := http.NewRequest("GET", inboundsURL, nil)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	req.Header = headers
 
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, &NetworkError{Message: fmt.Sprintf("Network error occurred: %s", err)}
-	}
-	defer resp.Body.Close()
+// 	resp, err := http.DefaultClient.Do(req)
+// 	if err != nil {
+// 		return nil, &NetworkError{Message: fmt.Sprintf("Network error occurred: %s", err)}
+// 	}
+// 	defer resp.Body.Close()
 
-	body, _ := ioutil.ReadAll(resp.Body)
-	if resp.StatusCode == 200 {
-		var result map[string]interface{}
-		if err := json.Unmarshal(body, &result); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal JSON: %w", err)
-		}
-		return result, nil
-	}
-	return nil, fmt.Errorf("Could not obtain inbounds: %s", body)
-}
+// 	body, _ := ioutil.ReadAll(resp.Body)
+// 	if resp.StatusCode == 200 {
+// 		var result map[string]interface{}
+// 		if err := json.Unmarshal(body, &result); err != nil {
+// 			return nil, fmt.Errorf("failed to unmarshal JSON: %w", err)
+// 		}
+// 		return result, nil
+// 	}
+// 	return nil, fmt.Errorf("Could not obtain inbounds: %s", body)
+// }
 
-func createUser(token, url, username, expire string, limit int, note string) (map[string]interface{}, error) {
-	headers := getHeaders(token, "application/json")
-	userURL := fmt.Sprintf("%s/api/user/", url)
+// func createUser(token, url, username, expire string, limit int, note string) (map[string]interface{}, error) {
+// 	headers := getHeaders(token, "application/json")
+// 	userURL := fmt.Sprintf("%s/api/user/", url)
 
-	inboundsData, err := getInbounds(token, url)
-	if err != nil {
-		return nil, err
-	}
+// 	inboundsData, err := getInbounds(token, url)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	proxies := make(map[string]interface{})
-	inbounds := make(map[string]interface{})
+// 	proxies := make(map[string]interface{})
+// 	inbounds := make(map[string]interface{})
 
-	// Extracting proxies and inbounds from the inbound data
-	for _, inboundList := range inboundsData {
-		for _, inbound := range inboundList.([]interface{}) {
-			protocol := inbound.(map[string]interface{})["protocol"]
-			tag := inbound.(map[string]interface{})["tag"]
-			if protocol != nil {
-				if _, exists := proxies[protocol.(string)]; !exists {
-					proxies[protocol.(string)] = struct{}{}
-				}
-				if _, exists := inbounds[protocol.(string)]; !exists {
-					inbounds[protocol.(string)] = []string{}
-				}
-				if tag != nil {
-					inbounds[protocol.(string)] = append(inbounds[protocol.(string)].([]string), tag.(string))
-				}
-			}
-		}
-	}
+// 	// Extracting proxies and inbounds from the inbound data
+// 	for _, inboundList := range inboundsData {
+// 		for _, inbound := range inboundList.([]interface{}) {
+// 			protocol := inbound.(map[string]interface{})["protocol"]
+// 			tag := inbound.(map[string]interface{})["tag"]
+// 			if protocol != nil {
+// 				if _, exists := proxies[protocol.(string)]; !exists {
+// 					proxies[protocol.(string)] = struct{}{}
+// 				}
+// 				if _, exists := inbounds[protocol.(string)]; !exists {
+// 					inbounds[protocol.(string)] = []string{}
+// 				}
+// 				if tag != nil {
+// 					inbounds[protocol.(string)] = append(inbounds[protocol.(string)].([]string), tag.(string))
+// 				}
+// 			}
+// 		}
+// 	}
 
-	data := map[string]interface{}{
-		"username":                  username,
-		"proxies":                   proxies,
-		"inbounds":                  inbounds,
-		"expire":                    expire,
-		"data_limit":                limit,
-		"data_limit_reset_strategy": "no_reset",
-		"status":                    "active",
-		"note":                      note,
-		"on_hold_timeout":           nil,
-		"on_hold_expire_duration":   0,
-	}
+// 	data := map[string]interface{}{
+// 		"username":                  username,
+// 		"proxies":                   proxies,
+// 		"inbounds":                  inbounds,
+// 		"expire":                    expire,
+// 		"data_limit":                limit,
+// 		"data_limit_reset_strategy": "no_reset",
+// 		"status":                    "active",
+// 		"note":                      note,
+// 		"on_hold_timeout":           nil,
+// 		"on_hold_expire_duration":   0,
+// 	}
 
-	// Marshal the data into JSON
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal JSON: %w", err)
-	}
+// 	// Marshal the data into JSON
+// 	jsonData, err := json.Marshal(data)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("failed to marshal JSON: %w", err)
+// 	}
 
-	// Create a new POST request with headers
-	req, err := http.NewRequest("POST", userURL, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return nil, err
-	}
-	req.Header = headers // Setting the headers
+// 	// Create a new POST request with headers
+// 	req, err := http.NewRequest("POST", userURL, bytes.NewBuffer(jsonData))
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	req.Header = headers // Setting the headers
 
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, &NetworkError{Message: fmt.Sprintf("Network error occurred: %s", err)}
-	}
-	defer resp.Body.Close()
+// 	resp, err := http.DefaultClient.Do(req)
+// 	if err != nil {
+// 		return nil, &NetworkError{Message: fmt.Sprintf("Network error occurred: %s", err)}
+// 	}
+// 	defer resp.Body.Close()
 
-	body, _ := ioutil.ReadAll(resp.Body)
-	if resp.StatusCode == 200 || resp.StatusCode == 201 {
-		var result map[string]interface{}
-		if err := json.Unmarshal(body, &result); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal JSON: %w", err)
-		}
-		return result, nil
-	}
+// 	body, _ := ioutil.ReadAll(resp.Body)
+// 	if resp.StatusCode == 200 || resp.StatusCode == 201 {
+// 		var result map[string]interface{}
+// 		if err := json.Unmarshal(body, &result); err != nil {
+// 			return nil, fmt.Errorf("failed to unmarshal JSON: %w", err)
+// 		}
+// 		return result, nil
+// 	}
 
-	return nil, fmt.Errorf("Could not create user %s: %s", username, body)
-}
+// 	return nil, fmt.Errorf("Could not create user %s: %s", username, body)
+// }
 
-// ModifyUser modifies an existing user's details.
-func modifyUser(token, url, username, expire string, limit int, note string, status string) (map[string]interface{}, error) {
-	headers := getHeaders(token, "application/json")
-	userURL := fmt.Sprintf("%s/api/user/%s", url, username)
+// // ModifyUser modifies an existing user's details.
+// func modifyUser(token, url, username, expire string, limit int, note string, status string) (map[string]interface{}, error) {
+// 	headers := getHeaders(token, "application/json")
+// 	userURL := fmt.Sprintf("%s/api/user/%s", url, username)
 
-	inboundsData, err := getInbounds(token, url)
-	if err != nil {
-		return nil, err
-	}
+// 	inboundsData, err := getInbounds(token, url)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	proxies := make(map[string]interface{})
-	inbounds := make(map[string]interface{})
+// 	proxies := make(map[string]interface{})
+// 	inbounds := make(map[string]interface{})
 
-	for _, inboundList := range inboundsData {
-		for _, inbound := range inboundList.([]interface{}) {
-			protocol := inbound.(map[string]interface{})["protocol"]
-			tag := inbound.(map[string]interface{})["tag"]
-			if protocol != nil {
-				if _, exists := proxies[protocol.(string)]; !exists {
-					proxies[protocol.(string)] = struct{}{}
-				}
-				if _, exists := inbounds[protocol.(string)]; !exists {
-					inbounds[protocol.(string)] = []string{}
-				}
-				if tag != nil {
-					inbounds[protocol.(string)] = append(inbounds[protocol.(string)].([]string), tag.(string))
-				}
-			}
-		}
-	}
+// 	for _, inboundList := range inboundsData {
+// 		for _, inbound := range inboundList.([]interface{}) {
+// 			protocol := inbound.(map[string]interface{})["protocol"]
+// 			tag := inbound.(map[string]interface{})["tag"]
+// 			if protocol != nil {
+// 				if _, exists := proxies[protocol.(string)]; !exists {
+// 					proxies[protocol.(string)] = struct{}{}
+// 				}
+// 				if _, exists := inbounds[protocol.(string)]; !exists {
+// 					inbounds[protocol.(string)] = []string{}
+// 				}
+// 				if tag != nil {
+// 					inbounds[protocol.(string)] = append(inbounds[protocol.(string)].([]string), tag.(string))
+// 				}
+// 			}
+// 		}
+// 	}
 
-	data := map[string]interface{}{
-		"proxies":                   proxies,
-		"inbounds":                  inbounds,
-		"expire":                    expire,
-		"data_limit":                limit,
-		"data_limit_reset_strategy": "no_reset",
-		"status":                    status,
-		"note":                      note,
-		"on_hold_timeout":           nil,
-		"on_hold_expire_duration":   0,
-	}
+// 	data := map[string]interface{}{
+// 		"proxies":                   proxies,
+// 		"inbounds":                  inbounds,
+// 		"expire":                    expire,
+// 		"data_limit":                limit,
+// 		"data_limit_reset_strategy": "no_reset",
+// 		"status":                    status,
+// 		"note":                      note,
+// 		"on_hold_timeout":           nil,
+// 		"on_hold_expire_duration":   0,
+// 	}
 
-	jsonData, _ := json.Marshal(data)
-	req, err := http.NewRequest("PUT", userURL, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return nil, err
-	}
-	req.Header = headers
+// 	jsonData, _ := json.Marshal(data)
+// 	req, err := http.NewRequest("PUT", userURL, bytes.NewBuffer(jsonData))
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	req.Header = headers
 
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
+// 	resp, err := http.DefaultClient.Do(req)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	defer resp.Body.Close()
 
-	body, _ := ioutil.ReadAll(resp.Body)
-	if resp.StatusCode == 200 || resp.StatusCode == 201 {
-		var result map[string]interface{}
-		if err := json.Unmarshal(body, &result); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal JSON: %w", err)
-		}
-		return result, nil
-	}
+// 	body, _ := ioutil.ReadAll(resp.Body)
+// 	if resp.StatusCode == 200 || resp.StatusCode == 201 {
+// 		var result map[string]interface{}
+// 		if err := json.Unmarshal(body, &result); err != nil {
+// 			return nil, fmt.Errorf("failed to unmarshal JSON: %w", err)
+// 		}
+// 		return result, nil
+// 	}
 
-	return nil, fmt.Errorf("Could not modify user %s: %s", username, body)
-}
+// 	return nil, fmt.Errorf("Could not modify user %s: %s", username, body)
+// }
 
 // GetUsers retrieves a list of users based on the specified parameters.
-func GetUsers(token, url string, offset int, limit int, sort string) (map[string]interface{}, error) {
-	headers := getHeaders(token, "")
-	usersURL := fmt.Sprintf("%s/api/users", url)
+// func GetUsers(token, url string, offset int, limit int, sort string) (map[string]interface{}, error) {
+// 	headers := getHeaders(token, "")
+// 	usersURL := fmt.Sprintf("%s/api/users", url)
 
-	req, err := http.NewRequest("GET", usersURL, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header = headers
+// 	req, err := http.NewRequest("GET", usersURL, nil)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	req.Header = headers
 
-	query := req.URL.Query()
-	query.Add("offset", fmt.Sprintf("%d", offset))
-	query.Add("limit", fmt.Sprintf("%d", limit))
-	query.Add("sort", sort)
-	req.URL.RawQuery = query.Encode()
+// 	query := req.URL.Query()
+// 	query.Add("offset", fmt.Sprintf("%d", offset))
+// 	query.Add("limit", fmt.Sprintf("%d", limit))
+// 	query.Add("sort", sort)
+// 	req.URL.RawQuery = query.Encode()
 
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, &NetworkError{Message: fmt.Sprintf("Network error occurred: %s", err)}
-	}
-	defer resp.Body.Close()
+// 	resp, err := http.DefaultClient.Do(req)
+// 	if err != nil {
+// 		return nil, &NetworkError{Message: fmt.Sprintf("Network error occurred: %s", err)}
+// 	}
+// 	defer resp.Body.Close()
 
-	body, _ := ioutil.ReadAll(resp.Body)
-	if resp.StatusCode == 200 {
-		var result map[string]interface{}
-		if err := json.Unmarshal(body, &result); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal JSON: %w", err)
-		}
-		if users, ok := result["users"].([]interface{}); ok {
-			totalUsers := len(users)
-			return map[string]interface{}{"total": totalUsers, "users": users}, nil
-		}
-		return nil, fmt.Errorf("unexpected response format: %s", body)
-	}
-	return nil, fmt.Errorf("Could not obtain users: %s", body)
-}
+// 	body, _ := ioutil.ReadAll(resp.Body)
+// 	if resp.StatusCode == 200 {
+// 		var result map[string]interface{}
+// 		if err := json.Unmarshal(body, &result); err != nil {
+// 			return nil, fmt.Errorf("failed to unmarshal JSON: %w", err)
+// 		}
+// 		if users, ok := result["users"].([]interface{}); ok {
+// 			totalUsers := len(users)
+// 			return map[string]interface{}{"total": totalUsers, "users": users}, nil
+// 		}
+// 		return nil, fmt.Errorf("unexpected response format: %s", body)
+// 	}
+// 	return nil, fmt.Errorf("Could not obtain users: %s", body)
+// }

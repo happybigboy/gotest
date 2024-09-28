@@ -29,7 +29,12 @@ func main() {
 
 	for update := range updates {
 		if update.Message != nil {
-			handlers.HandleMessage(bot, update.Message,userState)
+			handlers.HandleMessage(bot, update.Message, userState)
+		}
+	
+		if update.CallbackQuery != nil {
+			handlers.HandleCallbackQuery(bot, update.CallbackQuery)
+			// handlers.HandleButtonPress(bot, update.CallbackQuery)
 		}
 	}
 }
